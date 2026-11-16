@@ -58,12 +58,16 @@ final class ICloudFolder {
                     case "list":
                         let urls = try FileManager.default.contentsOfDirectory(at: folder,
                             includingPropertiesForKeys: nil, options: [])
-                        return urls.filter { $0.pathExtension.lowercased() == "yaml" || $0.pathExtension.lowercased() == "yml" }
-                            .map { $0.lastPathComponent }
+                        return Array(Set(urls.compactMap { url -> String? in
+                            var name = url.lastPathComponent
+                            if name.hasPrefix(".") && name.hasSuffix(".icloud") {
+                                name = String(name.dropFirst().dropLast(".icloud".count))
+                            }
+                            return self.isYamlName(name) ? name : nil
+                        }))
                     case "read", "write":
                         guard let args = call.arguments as? [String: Any], let name = args["name"] as? String,
-                              !name.contains("/"), !name.contains("\\"), !name.hasPrefix("."),
-                              ["yaml", "yml"].contains((name as NSString).pathExtension.lowercased()) else {
+                              self.isYamlName(name) else {
                             throw self.failure("Invalid YAML file name.")
                         }
                         let url = folder.appendingPathComponent(name)
@@ -87,6 +91,11 @@ final class ICloudFolder {
                 }
             }
         }
+    }
+
+    private func isYamlName(_ name: String) -> Bool {
+        !name.contains("/") && !name.contains("\\") && !name.hasPrefix(".") &&
+            ["yaml", "yml"].contains((name as NSString).pathExtension.lowercased())
     }
 
     private func read(_ url: URL) throws -> Data? {

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:crypto/crypto.dart';
@@ -169,8 +168,9 @@ class ICloudYamlSync extends ChangeNotifier {
     try {
       final names = await _channel.invokeListMethod<String>('list');
       if (!active()) return;
-      if (names == null)
+      if (names == null) {
         throw const FileSystemException('iCloud folder unavailable');
+      }
       final profiles = {
         for (final profile in _profiles())
           if (profile.type != ProfileType.custom &&
@@ -255,8 +255,9 @@ class ICloudYamlSync extends ChangeNotifier {
                 final after = target.statSync();
                 if (before.modified != after.modified ||
                     before.size != after.size ||
-                    before.type != after.type)
+                    before.type != after.type) {
                   continue;
+                }
                 staged.renameSync(path);
               } finally {
                 if (await staged.exists()) await staged.delete();

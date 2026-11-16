@@ -111,8 +111,9 @@ class ApplicationState extends ConsumerState<Application> {
         context == null ||
         iCloudYamlSync.busy ||
         _iCloudDialogOpen ||
-        !ref.read(appVisibleProvider))
+        !ref.read(appVisibleProvider)) {
       return;
+    }
     for (final conflict in iCloudYamlSync.conflicts.values) {
       final key =
           '${iCloudYamlSync.folder}:${conflict.name}:${conflict.local}:${conflict.remote}';

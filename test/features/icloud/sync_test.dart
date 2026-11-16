@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:fl_clash/common/path.dart';
 import 'package:fl_clash/features/icloud/sync.dart';
