@@ -1,5 +1,7 @@
 # iCloud Drive YAML 同步（macOS）
 
+本地接续进度、工具链和下一步任务见 [HANDOFF_ICLOUD.md](../HANDOFF_ICLOUD.md)。
+
 在「工具 → 备份与恢复 → iCloud Drive · YAML」选择 iCloud Drive 中的专用文件夹。
 同一 Apple 账号的其他 Mac 选择相同文件夹，FlClash 运行期间每 30 秒检查一次；点击「同步」可立即检查。
 选择目录即启用，关闭「已启用」开关停止同步并清除本机目录授权，不会删除本地或云端文件。
