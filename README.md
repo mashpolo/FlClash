@@ -4,6 +4,8 @@
 本版本的主要改动是让 Clash YAML 配置通过你选择的 **iCloud Drive 文件夹自动同步**，
 并在云端文件删除后同步移除 FlClash 中对应的配置。
 
+**[下载 macOS 安装包（Apple Silicon）](https://github.com/mashpolo/FlClash/releases/download/v0.9.3-icloud.1/FlClash-0.9.3-icloud.1-macos-arm64.dmg)** · [查看 Release](https://github.com/mashpolo/FlClash/releases/tag/v0.9.3-icloud.1)
+
 ## 相比原版增加了什么
 
 - **iCloud Drive 文件夹同步**：直接选择自己的 iCloud 云盘目录，在多台 Mac 上使用同一个文件夹。
@@ -61,6 +63,16 @@
 并非跨设备送达时限。目录读取失败或文件仍在下载时会等待后续重试；Finder 报告的 iCloud 文件版本冲突需要先在 Finder 中处理。
 
 ## 获取本版本
+
+当前发布版本为 **v0.9.3-icloud.1**，应用版本为 `0.9.3+2026111701`。
+
+| 系统 | 安装包 |
+| --- | --- |
+| macOS 12 及以上，Apple Silicon（M 系列芯片） | [下载 DMG](https://github.com/mashpolo/FlClash/releases/download/v0.9.3-icloud.1/FlClash-0.9.3-icloud.1-macos-arm64.dmg) |
+
+退出 FlClash 后打开 DMG，将应用拖入 Applications 安装或覆盖旧版。当前仅提供 arm64 安装包，未提供 Intel 版本；安装包尚未进行 Apple 公证。
+
+### 从源码构建
 
 本功能位于 [`main`](https://github.com/mashpolo/FlClash/tree/main) 分支。
 请使用该分支构建的应用，以获得这里介绍的同步行为。
