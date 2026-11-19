@@ -91,6 +91,8 @@ class ApplicationState extends ConsumerState<Application> {
                 .validateConfigWithData(bytes),
             put: (profile) =>
                 ref.read(profilesActionProvider.notifier).putProfile(profile),
+            remove: (id) =>
+                ref.read(profilesActionProvider.notifier).deleteProfile(id),
             changed: () => ref
                 .read(setupActionProvider.notifier)
                 .applyProfileDebounce(silence: true),

@@ -42,6 +42,7 @@ class ICloudYamlSync extends ChangeNotifier {
   late List<Profile> Function() _profiles;
   late Future<String?> Function(Uint8List) _validate;
   late void Function(Profile) _put;
+  late Future<void> Function(int) _remove;
   late void Function() _changed;
   SharedPreferences? _preferences;
 
@@ -51,6 +52,7 @@ class ICloudYamlSync extends ChangeNotifier {
     required List<Profile> Function() profiles,
     required Future<String?> Function(Uint8List) validate,
     required void Function(Profile) put,
+    required Future<void> Function(int) remove,
     required void Function() changed,
   }) async {
     final generation = ++_generation;
@@ -64,6 +66,7 @@ class ICloudYamlSync extends ChangeNotifier {
     _profiles = profiles;
     _validate = validate;
     _put = put;
+    _remove = remove;
     _changed = changed;
     try {
       _preferences = await SharedPreferences.getInstance();
@@ -171,6 +174,7 @@ class ICloudYamlSync extends ChangeNotifier {
       if (names == null) {
         throw const FileSystemException('iCloud folder unavailable');
       }
+      final remoteNames = names.toSet();
       final profiles = {
         for (final profile in _profiles())
           if (profile.type != ProfileType.custom &&
@@ -191,6 +195,15 @@ class ICloudYamlSync extends ChangeNotifier {
         if (!active()) return;
         try {
           final profile = profiles[_ids[name]];
+          if (_bases.containsKey(name) && !remoteNames.contains(name)) {
+            if (profile != null) await _remove(profile.id);
+            if (!active()) return;
+            _ids.remove(name);
+            _bases.remove(name);
+            conflicts.remove(name);
+            await _save();
+            continue;
+          }
           final local = await _readLocal(profile);
           final remote = await _channel.invokeMethod<Uint8List>('read', {
             'name': name,

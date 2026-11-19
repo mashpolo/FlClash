@@ -32,7 +32,7 @@ void main() {
   });
 
   test(
-    'deletion and cloud eviction never delete or overwrite the other side',
+    'missing content hashes alone never delete or overwrite the other side',
     () {
       for (final hash in ['a', 'b']) {
         expect(reconcileYaml(base: 'a', local: hash), SyncDecision.missing);

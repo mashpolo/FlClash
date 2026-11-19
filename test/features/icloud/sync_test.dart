@@ -21,6 +21,9 @@ void main() {
   late List<Profile> profiles;
   late bool failRead;
   late bool failWrite;
+  late bool failList;
+  late bool failRemove;
+  late Set<String> placeholders;
   late String? validationError;
   Future<void> Function()? duringValidation;
 
@@ -34,6 +37,12 @@ void main() {
     },
     put: (profile) {
       profiles = [...profiles.where((item) => item.id != profile.id), profile];
+    },
+    remove: (id) async {
+      if (failRemove) throw const FileSystemException('delete failed');
+      final file = File(await appPath.getProfilePath(id.toString()));
+      if (await file.exists()) await file.delete();
+      profiles = profiles.where((item) => item.id != id).toList();
     },
     changed: () {},
   );
@@ -49,6 +58,9 @@ void main() {
     cloud = {};
     failRead = false;
     failWrite = false;
+    failList = false;
+    failRemove = false;
+    placeholders = {};
     validationError = null;
     duringValidation = null;
     sync = ICloudYamlSync();
@@ -58,10 +70,14 @@ void main() {
         case 'folder':
           return '/iCloud/FlClash';
         case 'list':
-          return cloud.keys.toList();
+          if (failList) throw PlatformException(code: 'unavailable');
+          return {...cloud.keys, ...placeholders}.toList();
         case 'read':
           if (failRead) throw PlatformException(code: 'offline');
-          return cloud[args!['name']];
+          if (placeholders.contains(args!['name'])) {
+            throw PlatformException(code: 'downloading');
+          }
+          return cloud[args['name']];
         case 'write':
           if (failWrite) throw PlatformException(code: 'changed');
           expect(cloud[args!['name']], args['expected']);
@@ -191,17 +207,122 @@ void main() {
     },
   );
 
-  test('missing files pause; disabling leaves both sides untouched', () async {
+  test(
+    'cloud deletion removes the local profile and survives restart',
+    () async {
+      await start();
+      cloud.clear();
+      await sync.sync();
+      expect(profiles, isEmpty);
+      expect(await local.exists(), isFalse);
+      expect(sync.missing, isEmpty);
+      expect(sync.error, isNull);
+      sync.dispose();
+      sync = ICloudYamlSync();
+      await start();
+      expect(profiles, isEmpty);
+      expect(cloud, isEmpty);
+      expect(sync.missing, isEmpty);
+      expect(
+        (await SharedPreferences.getInstance()).getString('icloudYamlSync'),
+        isNot(contains('1.yaml')),
+      );
+    },
+  );
+
+  test('disabling leaves both sides untouched', () async {
     await start();
-    cloud.clear();
-    await sync.sync();
-    expect(sync.missing, contains('1.yaml'));
-    expect(cloud, isEmpty);
-    expect(await local.readAsString(), 'a');
     await sync.disable();
     expect(sync.folder, isNull);
     await local.writeAsString('b');
     await sync.sync();
+    expect(cloud['1.yaml'], bytes('a'));
+    expect(await local.readAsString(), 'b');
+  });
+
+  test('cloud deletion removes only the mapped imported profile', () async {
+    cloud['from-other-mac.yaml'] = bytes('remote');
+    await start();
+    final imported = profiles.singleWhere((profile) => profile.id != 1);
+    final importedFile = File(
+      await appPath.getProfilePath(imported.id.toString()),
+    );
+    sync.dispose();
+    sync = ICloudYamlSync();
+    cloud.remove('from-other-mac.yaml');
+    await start();
+    expect(profiles.single.id, 1);
+    expect(await importedFile.exists(), isFalse);
+    expect(await local.readAsString(), 'a');
+    expect(cloud.keys, ['1.yaml']);
+    expect(sync.missing, isEmpty);
+    expect(sync.error, isNull);
+  });
+
+  test('an unavailable folder is not a cloud deletion', () async {
+    await start();
+    cloud.clear();
+    failList = true;
+    await sync.sync();
+    expect(profiles.single.id, 1);
+    expect(await local.readAsString(), 'a');
+    expect(sync.error, isNotNull);
+  });
+
+  test('an evicted cloud file keeps the local profile', () async {
+    await start();
+    cloud.clear();
+    placeholders.add('1.yaml');
+    await sync.sync();
+    expect(profiles.single.id, 1);
+    expect(await local.readAsString(), 'a');
+    expect(sync.error, isNotNull);
+    placeholders.clear();
+    cloud['1.yaml'] = bytes('b');
+    await sync.sync();
+    expect(await local.readAsString(), 'b');
+    expect(sync.error, isNull);
+  });
+
+  test('a failed local deletion can be retried after restart', () async {
+    await start();
+    cloud.clear();
+    failRemove = true;
+    await sync.sync();
+    expect(profiles.single.id, 1);
+    expect(await local.readAsString(), 'a');
+    expect(sync.error, isNotNull);
+    sync.dispose();
+    sync = ICloudYamlSync();
+    failRemove = false;
+    await start();
+    expect(profiles, isEmpty);
+    expect(await local.exists(), isFalse);
     expect(cloud, isEmpty);
+    expect(sync.error, isNull);
+  });
+
+  test('cloud deletion clears a pending content conflict', () async {
+    await start();
+    await local.writeAsString('b');
+    cloud['1.yaml'] = bytes('c');
+    await sync.sync();
+    expect(sync.conflicts, contains('1.yaml'));
+    cloud.clear();
+    await sync.sync(resolve: sync.conflicts['1.yaml'], useLocal: true);
+    expect(profiles, isEmpty);
+    expect(await local.exists(), isFalse);
+    expect(sync.conflicts, isEmpty);
+    expect(cloud, isEmpty);
+  });
+
+  test('local deletion does not delete the cloud file', () async {
+    await start();
+    profiles.clear();
+    await local.delete();
+    await sync.sync();
+    expect(profiles, isEmpty);
+    expect(cloud['1.yaml'], bytes('a'));
+    expect(sync.missing, contains('1.yaml'));
   });
 }

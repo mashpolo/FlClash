@@ -34,6 +34,7 @@ A multi-platform proxy client based on ClashMeta. Simple to use, open source and
 - **Material You design with Apple-style interaction**: dynamic color, light and dark themes, continuous corners,
   sheets that snap between heights, and layouts that adapt from phones to desktops.
 - **Backup and restore** through WebDAV or a local file.
+- **iCloud Drive YAML sync on macOS**, with automatic two-way updates and conflict resolution.
 - **Platform touches**: a Quick Settings tile, per-app proxy and Android TV support on Android; a tray menu and
   global hotkeys on the desktop.
 - **Open source and ad-free**, licensed under GPL-3.0.
@@ -85,6 +86,16 @@ and `flclash://` schemes work the same way.
 ```text
 clash://install-config?url=<URL-encoded subscription link>
 ```
+
+**Sync YAML profiles with iCloud Drive on macOS.** In Tools → Backup and Restore → iCloud Drive · YAML,
+select a dedicated folder in iCloud Drive. Select the same folder on each Mac. FlClash checks every 30 seconds
+while running; use Sync to check immediately. If both copies change, choose which version to keep.
+
+Deleting a previously synced YAML from the iCloud folder also removes its local profile on the next sync,
+including any local edits not yet synced. Deleting only the local profile leaves the cloud file in place.
+Files still downloading and failed folder scans do not trigger deletion. Sync covers file-based YAML profiles,
+including downloaded subscription content, but excludes encrypted profiles, custom profiles, app settings and
+subscription URL metadata. macOS handles delivery to other devices.
 
 **Automate on Android.** Tasker, MacroDroid and similar apps can start, stop or toggle the proxy by starting an
 activity with one of these actions:
