@@ -23,6 +23,64 @@ class _MockCoreHandlerInterface extends Mock implements CoreHandlerInterface {}
 
 void main() {
   group('ProfilesAction', () {
+    for (final scenario in [
+      (
+        name: 'deleting the current profile selects the remaining profile',
+        initialIds: [1, 2],
+        removedId: 1,
+        selectedId: 2,
+        remainingIds: [2],
+        runningRequests: <bool>[],
+      ),
+      (
+        name: 'deleting the last profile clears selection and stops running',
+        initialIds: [1],
+        removedId: 1,
+        selectedId: null,
+        remainingIds: <int>[],
+        runningRequests: [false],
+      ),
+      (
+        name: 'deleting another profile preserves the current selection',
+        initialIds: [1, 2],
+        removedId: 2,
+        selectedId: 1,
+        remainingIds: [1],
+        runningRequests: <bool>[],
+      ),
+    ]) {
+      test(scenario.name, () async {
+        final action = _DeleteRecordingProfilesAction();
+        final setupAction = _TestSetupAction();
+        final container = ProviderContainer(
+          overrides: [
+            currentProfileIdProvider.overrideWithBuild((_, _) => 1),
+            profilesProvider.overrideWith(
+              () => TestProfiles([
+                for (final id in scenario.initialIds)
+                  Profile(id: id, autoUpdateDuration: Duration.zero),
+              ]),
+            ),
+            profilesActionProvider.overrideWith(() => action),
+            setupActionProvider.overrideWith(() => setupAction),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        await container
+            .read(profilesActionProvider.notifier)
+            .deleteProfile(scenario.removedId);
+
+        expect(
+          container.read(profilesProvider).map((profile) => profile.id),
+          scenario.remainingIds,
+        );
+        expect(container.read(currentProfileIdProvider), scenario.selectedId);
+        expect(action.clearedIds, [scenario.removedId]);
+        expect(setupAction.runningRequests, scenario.runningRequests);
+      });
+    }
+
     test('keeps edited profile data when remote update fails', () async {
       final original = Profile.normal(label: 'old label', url: 'bad-url');
       final edited = original.copyWith(
@@ -926,6 +984,7 @@ class _MemoryScripts extends Scripts {
 
 class _TestSetupAction extends SetupAction {
   int setRunningCount = 0;
+  final runningRequests = <bool>[];
   int applyProfileCount = 0;
   bool setRunningResult = true;
   Completer<void>? firstApplyStarted;
@@ -934,6 +993,7 @@ class _TestSetupAction extends SetupAction {
   @override
   Future<bool> setRunning(bool running, {bool initialize = false}) async {
     setRunningCount++;
+    runningRequests.add(running);
     return setRunningResult;
   }
 
@@ -949,6 +1009,15 @@ class _TestSetupAction extends SetupAction {
       await firstApplyCompleter?.future;
     }
     return true;
+  }
+}
+
+class _DeleteRecordingProfilesAction extends ProfilesAction {
+  final clearedIds = <int>[];
+
+  @override
+  Future<void> clearEffect(int profileId) async {
+    clearedIds.add(profileId);
   }
 }
 

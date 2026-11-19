@@ -1,143 +1,82 @@
-<div align="center">
+# FlClash · iCloud 同步版
 
-<img src="assets/images/icon.png" alt="FlClash" width="88">
+基于 [FlClash](https://github.com/chen08209/FlClash) 0.9.3 的 macOS iCloud 同步增强版本。
+本版本的主要改动是让 Clash YAML 配置通过你选择的 **iCloud Drive 文件夹自动同步**，
+并在云端文件删除后同步移除 FlClash 中对应的配置。
 
-# FlClash
+## 相比原版增加了什么
 
-A multi-platform proxy client based on ClashMeta. Simple to use, open source and ad-free.
+- **iCloud Drive 文件夹同步**：直接选择自己的 iCloud 云盘目录，在多台 Mac 上使用同一个文件夹。
+- **自动双向更新**：应用启动时检查一次，运行期间每 30 秒检查；也可以手动点击“同步”。本地或云端单独修改时，自动更新另一端。
+- **冲突由你决定**：两端都修改时，选择保留本地版本或云端版本；关闭提示会保留两端内容，稍后再处理。
+- **云端删除同步到配置列表**：删除已同步的云端 YAML 后，下次同步会删除对应的本地配置和文件，解决云端已删除、应用内仍显示的问题。
+- **重启后继续同步**：保存文件夹授权和文件对应关系，重启应用后继续使用原来的同步目录。
+- **识别 iCloud 占位文件**：尚未下载的文件会请求系统下载并稍后重试，不会当作已删除文件处理。
 
-**English** · [简体中文](README_zh_CN.md)
+本次还修复了配置加载期间的状态生命周期问题，避免启动或应用配置时出现状态已释放的错误。
+新增的 iCloud 功能目前仅适用于 **macOS**。
 
-[![Release](https://img.shields.io/github/v/release/chen08209/FlClash?style=flat-square&label=release)](https://github.com/chen08209/FlClash/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/chen08209/FlClash/total?style=flat-square&logo=github)](https://github.com/chen08209/FlClash/releases)
-[![License](https://img.shields.io/github/license/chen08209/FlClash?style=flat-square)](LICENSE)
-[![Telegram](https://img.shields.io/badge/Telegram-channel-26A5E4?style=flat-square&logo=telegram&logoColor=white)](https://t.me/FlClash)
+## 如何使用
 
-[Website](https://chen08209.github.io/FlClash) · [Download](#download) · [Changelog](CHANGELOG.md) · [Build from source](#build-from-source)
+1. 在 Finder 的“iCloud 云盘”中创建一个专用文件夹，例如 `FlClash`。
+2. 打开 FlClash，进入 **工具 → 备份与恢复 → iCloud Drive · YAML**。
+3. 点击“选择”，选中刚才的文件夹；选择完成即开启同步。
+4. 其他 Mac 登录相同的 Apple 账号，安装本版本并选择同一个文件夹。
+5. 等待自动同步，或点击“同步”立即检查。
 
-</div>
+首次同步会导出本机符合条件的配置，也会导入文件夹内已有的 YAML。
+导出的文件默认以配置 ID 命名；从云端导入后，文件名与本地配置的对应关系会保存在本机。
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="snapshots/preview-dark.png">
-    <img alt="FlClash dashboard on a MacBook and a phone" src="snapshots/preview.png" width="92%">
-  </picture>
-</p>
+遇到内容冲突时：
 
-## Features
+| 操作 | 结果 |
+| --- | --- |
+| 本地 → 远程 | 用本地 YAML 更新云端文件 |
+| 远程 → 本地 | 用云端 YAML 更新本地配置 |
+| 关闭提示 | 暂时保留两端版本，稍后从同步区域处理 |
 
-- **One app for Android, Windows, macOS and Linux**, with x64 and ARM64 builds on the desktop.
-- **mihomo (Clash.Meta) core** with rule routing, proxy groups, latency tests, system proxy and TUN mode.
-- **Profiles** from a subscription link or a file, with a built-in editor, override scripts, and custom rules,
-  proxies and proxy groups.
-- **Live views** of connections, requests, DNS queries and logs.
-- **Material You design with Apple-style interaction**: dynamic color, light and dark themes, continuous corners,
-  sheets that snap between heights, and layouts that adapt from phones to desktops.
-- **Backup and restore** through WebDAV or a local file.
-- **Platform touches**: a Quick Settings tile, per-app proxy and Android TV support on Android; a tray menu and
-  global hotkeys on the desktop.
-- **Open source and ad-free**, licensed under GPL-3.0.
+## 删除与关闭同步
 
-## Download
+**删除云端文件会删除对应本地配置，包括其中尚未同步的本地修改。**
+只有文件已有成功同步记录、目录扫描成功且确认文件名不存在时，才执行删除。
+若删掉的是当前选中的配置，会切换到剩余配置；没有剩余配置时停止运行。
 
-Get the latest build from [GitHub Releases](https://github.com/chen08209/FlClash/releases/latest), or open the
-[website](https://chen08209.github.io/FlClash#download), which picks the right file for your device.
+对于已同步的配置，只在 FlClash 中删除本地配置时，云端文件会保留，该文件的同步暂停。
+关闭同步开关会停止同步并清除本机目录授权，本地和云端已有文件均会保留。
 
-| Platform | Packages | Notes |
-| --- | --- | --- |
-| Android | APK for `arm64-v8a`, `armeabi-v7a` and `x86_64` | Most phones use `arm64-v8a`. Also on the F-Droid repository below. |
-| Windows 10 and later | Installer (`.exe`) or portable `.zip`, for x64 and ARM64 | Pick ARM64 on Snapdragon and other ARM laptops. |
-| macOS 12 and later | DMG for Apple Silicon and Intel | Also on Homebrew. |
-| Linux | `.deb`, `.rpm` and AppImage, for x64 and ARM64 | See the tray note below. |
+## 同步范围
 
-<p>
-  <a href="https://chen08209.github.io/FlClash-fdroid-repo/repo?fingerprint=789D6D32668712EF7672F9E58DEEB15FBD6DCEEC5AE7A4371EA72F2AAE8A12FD"><img alt="Get it on F-Droid" src="snapshots/get-it-on-fdroid.svg" height="56"></a>
-  <a href="https://github.com/chen08209/FlClash/releases/latest"><img alt="Get it on GitHub" src="snapshots/get-it-on-github.svg" height="56"></a>
-</p>
+| 内容 | 是否同步 |
+| --- | --- |
+| 文件配置的原始 YAML | 是 |
+| 订阅下载后的原始 YAML | 是 |
+| 订阅地址及订阅元数据 | 否；另一台 Mac 导入后作为文件配置 |
+| 应用设置、数据库、日志、缓存 | 否 |
+| 应用内创建的自定义配置、带解密密钥的加密配置 | 否 |
 
-**Homebrew**
+仅处理所选目录顶层的 `.yaml` 和 `.yml` 文件，单文件上限为 **16 MiB**，不递归扫描子目录，也不跟随文件符号链接。
+请保持文件名稳定：重命名会作为旧文件删除和新文件导入处理，原本的本地配置身份不会自动保留。
 
-```bash
-brew tap chen08209/tap
-brew install --cask flclash
-```
+同步只在 FlClash 运行时进行。macOS 负责 iCloud 的实际上传和跨设备传输，30 秒是应用的检查间隔，
+并非跨设备送达时限。目录读取失败或文件仍在下载时会等待后续重试；Finder 报告的 iCloud 文件版本冲突需要先在 Finder 中处理。
 
-**Linux tray icon**
+## 获取本版本
 
-The `.deb` package installs its own dependencies. With the AppImage or the `.rpm`, install the AyatanaAppIndicator
-library so the tray icon can show:
+本功能位于 [`main`](https://github.com/mashpolo/FlClash/tree/main) 分支。
+请使用该分支构建的应用，以获得这里介绍的同步行为。
 
-```bash
-sudo apt-get install libayatana-appindicator3-1   # Debian and Ubuntu
-sudo dnf install libayatana-appindicator-gtk3     # Fedora
-```
-
-**Unattended desktop**
-
-FlClash starts the core only after the disclaimer is accepted. Where nobody can click it, such as a container, set
-`FLCLASH_ACCEPT_DISCLAIMER=1` in the app's environment to accept it on first launch.
-
-## Usage
-
-**Import a profile from a link.** Opening a link in this form imports the subscription into FlClash. The `clashmeta://`
-and `flclash://` schemes work the same way.
-
-```text
-clash://install-config?url=<URL-encoded subscription link>
-```
-
-**Automate on Android.** Tasker, MacroDroid and similar apps can start, stop or toggle the proxy by starting an
-activity with one of these actions:
-
-```text
-com.follow.clash.action.START
-com.follow.clash.action.STOP
-com.follow.clash.action.TOGGLE
-```
-
-From a computer, the same works over adb:
+在已安装 Flutter 3.47.6、Go 1.27.1、通过 rustup 安装的 Rust 1.99.0 和 Xcode 的 Mac 上，可以构建应用：
 
 ```bash
-adb shell am start -a com.follow.clash.action.TOGGLE
-```
-
-## Build from source
-
-You need [Flutter](https://docs.flutter.dev/get-started/install) 3.47 (release builds use 3.47.6),
-[Go](https://go.dev/dl/) 1.27 and [Rust](https://rustup.rs/) installed through rustup. Each platform builds on its own
-host, except Android, which builds anywhere.
-
-```bash
-git clone --recursive https://github.com/chen08209/FlClash.git
+git clone --recursive --branch main https://github.com/mashpolo/FlClash.git
 cd FlClash
 flutter pub get
-dart setup.dart android   # or windows, macos, linux
+flutter build macos --release --dart-define=APP_ENV=stable
 ```
 
-Packages land in `dist/`. The Go core and the Rust libraries are compiled as part of the Flutter build.
+生成的应用位于 `build/macos/Build/Products/Release/FlClash.app`。
 
-| Platform | Also needed |
-| --- | --- |
-| Android | Android SDK with the NDK. Add `--arch arm64` to build a single ABI. |
-| Windows | GCC (MinGW-w64) for the core and [Inno Setup](https://jrsoftware.org/isinfo.php) 6 for the installer. |
-| macOS | Xcode and Node.js. The script installs `appdmg` through npm. |
-| Linux | Debian or Ubuntu. The script installs the build packages with apt and downloads `appimagetool`. |
+## 原项目与许可证
 
-Run `dart setup.dart --help` for the remaining options, such as `--targets` to build only some package formats.
-
-## Support
-
-Starring the repository is the easiest way to support the project. Questions and announcements go to the
-[Telegram channel](https://t.me/FlClash); bugs and feature requests go to
-[GitHub Issues](https://github.com/chen08209/FlClash/issues).
-
-<a href="https://star-history.com/#chen08209/FlClash&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=chen08209/FlClash&type=Date&theme=dark">
-    <img alt="Star history" src="https://api.star-history.com/svg?repos=chen08209/FlClash&type=Date" width="640">
-  </picture>
-</a>
-
-## License
-
-FlClash is released under the [GPL-3.0 license](LICENSE).
+感谢 [chen08209/FlClash](https://github.com/chen08209/FlClash) 及相关依赖项目。
+本仓库延续原项目的 [GPL-3.0 许可证](LICENSE)。
