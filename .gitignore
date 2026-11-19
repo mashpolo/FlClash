@@ -46,8 +46,13 @@ app.*.map.json
 .claude/settings.local.json
 .claude/worktrees/
 
-# Documentation (generated/planning artifacts)
+# Only README.md may be added; keep design, development and test notes local.
 docs/
+*.md
+!README.md
+!LICENSE.md
+/.claude/skills/
+/ChatGPT*.png
 
 
 # Android Studio will place build artifacts here
