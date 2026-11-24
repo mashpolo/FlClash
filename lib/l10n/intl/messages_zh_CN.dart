@@ -268,6 +268,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionTun": MessageLookupByLibrary.simpleMessage("虚拟网卡"),
     "actionUpdateProfiles": MessageLookupByLibrary.simpleMessage("更新全部配置"),
     "actionView": MessageLookupByLibrary.simpleMessage("显示/隐藏"),
+    "activeOutboundIps": MessageLookupByLibrary.simpleMessage("在用出口"),
     "add": MessageLookupByLibrary.simpleMessage("添加"),
     "addCustomProxy": MessageLookupByLibrary.simpleMessage("添加代理"),
     "addFilters": MessageLookupByLibrary.simpleMessage("添加筛选"),
@@ -293,6 +294,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "该配置已用 age 加密，需要 age 私钥才能解密",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("同意"),
+    "allOutboundIps": MessageLookupByLibrary.simpleMessage("全部出口"),
     "allReferencedProxies": MessageLookupByLibrary.simpleMessage("全部被引用的代理"),
     "allReferencedProxyProviders": MessageLookupByLibrary.simpleMessage(
       "全部被引用的代理集",
@@ -1123,6 +1125,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("网络类型"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("下一个匹配"),
     "no": MessageLookupByLibrary.simpleMessage("否"),
+    "noActiveOutboundIps": MessageLookupByLibrary.simpleMessage("暂无在用出口"),
     "noData": MessageLookupByLibrary.simpleMessage("暂无数据"),
     "noInfo": MessageLookupByLibrary.simpleMessage("暂无信息"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage("不再提示"),

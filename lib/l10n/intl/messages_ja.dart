@@ -272,6 +272,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionTun": MessageLookupByLibrary.simpleMessage("TUN"),
     "actionUpdateProfiles": MessageLookupByLibrary.simpleMessage("プロファイルを更新"),
     "actionView": MessageLookupByLibrary.simpleMessage("表示/非表示"),
+    "activeOutboundIps": MessageLookupByLibrary.simpleMessage("使用中の出口"),
     "add": MessageLookupByLibrary.simpleMessage("追加"),
     "addCustomProxy": MessageLookupByLibrary.simpleMessage("プロキシを追加"),
     "addFilters": MessageLookupByLibrary.simpleMessage("フィルターを追加"),
@@ -299,6 +300,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "このプロファイルは age で暗号化されており、復号には age 秘密鍵が必要です",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("同意する"),
+    "allOutboundIps": MessageLookupByLibrary.simpleMessage("すべての出口"),
     "allReferencedProxies": MessageLookupByLibrary.simpleMessage(
       "参照されているすべてのプロキシ",
     ),
@@ -1237,6 +1239,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("ネットワーク種別"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("次の一致"),
     "no": MessageLookupByLibrary.simpleMessage("いいえ"),
+    "noActiveOutboundIps": MessageLookupByLibrary.simpleMessage("使用中の出口はありません"),
     "noData": MessageLookupByLibrary.simpleMessage("データがありません"),
     "noInfo": MessageLookupByLibrary.simpleMessage("情報がありません"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage("今後表示しない"),

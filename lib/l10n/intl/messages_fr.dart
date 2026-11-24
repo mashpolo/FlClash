@@ -318,6 +318,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Mettre à jour les profils",
     ),
     "actionView": MessageLookupByLibrary.simpleMessage("Afficher/Masquer"),
+    "activeOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "Sorties actives",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Ajouter"),
     "addCustomProxy": MessageLookupByLibrary.simpleMessage("Ajouter un proxy"),
     "addFilters": MessageLookupByLibrary.simpleMessage("Ajouter des filtres"),
@@ -359,6 +362,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Ce profil est chiffré avec age et nécessite une clé secrète age pour être déchiffré",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("Accepter"),
+    "allOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "Toutes les sorties",
+    ),
     "allReferencedProxies": MessageLookupByLibrary.simpleMessage(
       "Tous les proxys référencés",
     ),
@@ -1550,6 +1556,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Type de réseau"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Résultat suivant"),
     "no": MessageLookupByLibrary.simpleMessage("Non"),
+    "noActiveOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "Aucune sortie active",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("Aucune donnée"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Aucune information"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(

@@ -276,6 +276,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "actionTun": MessageLookupByLibrary.simpleMessage("TUN"),
     "actionUpdateProfiles": MessageLookupByLibrary.simpleMessage("프로필 업데이트"),
     "actionView": MessageLookupByLibrary.simpleMessage("표시/숨기기"),
+    "activeOutboundIps": MessageLookupByLibrary.simpleMessage("사용 중인 출구"),
     "add": MessageLookupByLibrary.simpleMessage("추가"),
     "addCustomProxy": MessageLookupByLibrary.simpleMessage("프록시 추가"),
     "addFilters": MessageLookupByLibrary.simpleMessage("필터 추가"),
@@ -301,6 +302,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "이 프로필은 age로 암호화되어 있어 복호화하려면 age 비밀 키가 필요합니다",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("동의"),
+    "allOutboundIps": MessageLookupByLibrary.simpleMessage("모든 출구"),
     "allReferencedProxies": MessageLookupByLibrary.simpleMessage("참조된 모든 프록시"),
     "allReferencedProxyProviders": MessageLookupByLibrary.simpleMessage(
       "참조된 모든 프록시 공급자",
@@ -1221,6 +1223,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("네트워크 유형"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("다음 결과"),
     "no": MessageLookupByLibrary.simpleMessage("아니요"),
+    "noActiveOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "사용 중인 출구가 없습니다",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("데이터 없음"),
     "noInfo": MessageLookupByLibrary.simpleMessage("정보 없음"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage("다시 알리지 않음"),

@@ -56,6 +56,7 @@ const (
 	trafficResetMethod       CoreMethod = "traffic.reset"
 	connectionListMethod     CoreMethod = "connection.list"
 	connectionCountMethod    CoreMethod = "connection.count"
+	connectionPathsMethod    CoreMethod = "connection.activePaths"
 	connectionCloseMethod    CoreMethod = "connection.close"
 	connectionCloseAllMethod CoreMethod = "connection.closeAll"
 	connectionResetMethod    CoreMethod = "connection.reset"

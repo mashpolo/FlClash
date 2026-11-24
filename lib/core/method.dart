@@ -39,6 +39,7 @@ enum CoreMethod {
   trafficReset('traffic.reset'),
   connectionList('connection.list'),
   connectionCount('connection.count'),
+  connectionActivePaths('connection.activePaths'),
   connectionClose('connection.close'),
   connectionCloseAll('connection.closeAll'),
   connectionReset('connection.reset'),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:fl_clash/common/constant.dart';
 import 'package:fl_clash/core/controller.dart';
@@ -161,6 +162,15 @@ IpInfo Function(String) _json(IpInfo Function(Map<String, dynamic>) parse) {
   return (body) => parse(jsonDecode(body) as Map<String, dynamic>);
 }
 
+final _ipv4Sources = {
+  'https://4.ident.me/json': _json(IpInfo.fromIdentMeJson),
+  'https://api-ipv4.ip.sb/geoip': _json(IpInfo.fromIpSbJson),
+};
+final _ipv6Sources = {
+  'https://6.ident.me/json': _json(IpInfo.fromIdentMeJson),
+  'https://api-ipv6.ip.sb/geoip': _json(IpInfo.fromIpSbJson),
+};
+
 final Map<String, IpInfo Function(String)> ipInfoSources = {
   'https://www.cloudflare.com/cdn-cgi/trace': IpInfo.fromCloudflareTrace,
   'https://api.ip.sb/geoip': _json(IpInfo.fromIpSbJson),
@@ -177,24 +187,39 @@ Future<OutboundIpResult> lookupOutboundIp(
   CoreController core,
   String proxyName, {
   Duration timeout = outboundIpTimeoutDuration,
+  InternetAddressType? family,
 }) {
+  final sources = switch (family) {
+    InternetAddressType.IPv4 => _ipv4Sources,
+    InternetAddressType.IPv6 => _ipv6Sources,
+    _ => ipInfoSources,
+  };
   return core.outboundIp(
     OutboundIpParams(
       proxyName: proxyName,
-      urls: ipInfoSources.keys.toList(),
+      urls: sources.keys.toList(),
       timeout: timeout.inMilliseconds,
     ),
   );
 }
 
-IpInfo? parseOutboundIp(OutboundIpResult result) {
+IpInfo? parseOutboundIp(
+  OutboundIpResult result, {
+  InternetAddressType? family,
+}) {
   if (result.error != null || result.body.isEmpty) {
     return null;
   }
-  final parse = ipInfoSources[result.url];
+  final url = result.url;
+  final parse = ipInfoSources[url] ?? _ipv4Sources[url] ?? _ipv6Sources[url];
   if (parse == null) return null;
   try {
-    return parse(result.body);
+    final info = parse(result.body);
+    final ip = InternetAddress.tryParse(info.ip);
+    if (ip == null || (family != null && ip.type != family)) return null;
+    return info.copyWith(
+      ip: InternetAddress.fromRawAddress(ip.rawAddress).address,
+    );
   } on FormatException {
     return null;
   } on TypeError {

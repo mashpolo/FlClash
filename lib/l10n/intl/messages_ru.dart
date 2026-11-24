@@ -307,6 +307,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Обновить профили",
     ),
     "actionView": MessageLookupByLibrary.simpleMessage("Показать/Скрыть"),
+    "activeOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "Активные выходы",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Добавить"),
     "addCustomProxy": MessageLookupByLibrary.simpleMessage("Добавить прокси"),
     "addFilters": MessageLookupByLibrary.simpleMessage("Добавить фильтры"),
@@ -348,6 +351,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Профиль зашифрован с помощью age, для расшифровки нужен секретный ключ age",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("Согласен"),
+    "allOutboundIps": MessageLookupByLibrary.simpleMessage("Все выходы"),
     "allReferencedProxies": MessageLookupByLibrary.simpleMessage(
       "Все используемые прокси",
     ),
@@ -1513,6 +1517,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Тип сети"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Следующее совпадение"),
     "no": MessageLookupByLibrary.simpleMessage("Нет"),
+    "noActiveOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "Нет активных выходов",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("Нет данных"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Нет информации"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(

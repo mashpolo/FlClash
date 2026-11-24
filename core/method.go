@@ -221,6 +221,7 @@ var methodHandlers = map[CoreMethod]methodHandler{
 	trafficResetMethod:       action(handleResetTraffic),
 	connectionListMethod:     withoutArguments(handleGetConnections),
 	connectionCountMethod:    withoutArguments(handleGetConnectionCount),
+	connectionPathsMethod:    withoutArguments(handleGetActiveOutboundPaths),
 	connectionCloseMethod:    command(handleCloseConnection),
 	connectionCloseAllMethod: action(handleCloseConnections),
 	connectionResetMethod:    action(handleResetConnections),

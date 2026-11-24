@@ -1,8 +1,12 @@
 package core
 
 import (
+	"slices"
+
 	"github.com/metacubex/mihomo/component/resolver"
+	"github.com/metacubex/mihomo/constant"
 	"github.com/metacubex/mihomo/dns"
+	"github.com/metacubex/mihomo/tunnel"
 	"github.com/metacubex/mihomo/tunnel/statistic"
 )
 
@@ -31,6 +35,35 @@ func handleGetConnectionCount() int {
 		return true
 	})
 	return count
+}
+
+func handleGetActiveOutboundPaths() []constant.Chain {
+	proxies := tunnel.AllProxies()
+	paths := make([]constant.Chain, 0)
+	seen := make(map[[2]string][]constant.Chain)
+	statistic.DefaultManager.Range(func(tracker statistic.Tracker) bool {
+		info := tracker.Info()
+		chain := info.Chain
+		if info.Metadata.Type == constant.INNER || len(chain) == 0 || chain[0] == "" {
+			return true
+		}
+		if proxy := proxies[chain[0]]; proxy != nil {
+			switch proxy.Type() {
+			case constant.Reject, constant.RejectDrop, constant.Pass, constant.PassRule:
+				return true
+			}
+		}
+		ends := [2]string{chain[0], chain[len(chain)-1]}
+		if !slices.ContainsFunc(seen[ends], func(previous constant.Chain) bool {
+			return slices.Equal(previous, chain)
+		}) {
+			seen[ends] = append(seen[ends], chain)
+			paths = append(paths, chain)
+		}
+		return true
+	})
+	slices.SortFunc(paths, slices.Compare)
+	return paths
 }
 
 func handleCloseConnections() {

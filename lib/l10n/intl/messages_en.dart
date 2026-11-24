@@ -303,6 +303,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Update profiles",
     ),
     "actionView": MessageLookupByLibrary.simpleMessage("Show/Hide"),
+    "activeOutboundIps": MessageLookupByLibrary.simpleMessage("Active exits"),
     "add": MessageLookupByLibrary.simpleMessage("Add"),
     "addCustomProxy": MessageLookupByLibrary.simpleMessage("Add proxy"),
     "addFilters": MessageLookupByLibrary.simpleMessage("Add filters"),
@@ -340,6 +341,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "This profile is encrypted with age and needs an age secret key to decrypt",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("Agree"),
+    "allOutboundIps": MessageLookupByLibrary.simpleMessage("All exits"),
     "allReferencedProxies": MessageLookupByLibrary.simpleMessage(
       "All referenced proxies",
     ),
@@ -1441,6 +1443,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Network type"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Next match"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
+    "noActiveOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "No active exits",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("No data"),
     "noInfo": MessageLookupByLibrary.simpleMessage("No info"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(

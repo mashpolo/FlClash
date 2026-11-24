@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/common/service_probe.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/features/features.dart';
 import 'package:fl_clash/features/ip_quality/labels.dart';
@@ -20,7 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prism_ui/shapes/shapes.dart';
 
 import 'card.dart';
-import 'package:prism_ui/prism_ui.dart';
+import 'outbound_ips_sheet.dart';
 
 const _builtinOutbounds = {'DIRECT', 'REJECT', 'REJECT-DROP', 'PASS'};
 
@@ -31,6 +30,8 @@ const _ipMask = '*****';
 const _decorationGrowth = 0.12;
 
 const _decorationTurn = 2 * math.pi / 12;
+
+const _labeledHeaderWidth = 310.0;
 
 /// The address the proxied traffic leaves by, next to the start button.
 class CurrentOutboundCard extends ConsumerStatefulWidget {
@@ -44,21 +45,27 @@ class CurrentOutboundCard extends ConsumerStatefulWidget {
 class _CurrentOutboundCardState extends ConsumerState<CurrentOutboundCard>
     with ProbeStartHold<CurrentOutboundCard> {
   late final OutboundIpProbe _probe;
+  late String _target;
 
   @override
   void initState() {
     super.initState();
-    _probe = ref.read(outboundIpProbeProvider.notifier)..watch(routedOutbound);
+    _probe = ref.read(outboundIpProbeProvider.notifier);
+    ref.listenManual(dashboardOutboundTargetProvider, (previous, target) {
+      _probe.watch(target);
+      if (previous != null) _probe.unwatch(previous);
+      _target = target;
+    }, fireImmediately: true);
   }
 
   @override
   void dispose() {
-    _probe.unwatch(routedOutbound);
+    _probe.unwatch(_target);
     super.dispose();
   }
 
   void _refresh(String? ip) {
-    _probe.refresh(const [routedOutbound]);
+    _probe.refresh([_target]);
     if (ip != null && ref.read(ipQualityProvider(ip)).hasError) {
       ref.invalidate(ipQualityProvider(ip));
     }
@@ -74,8 +81,9 @@ class _CurrentOutboundCardState extends ConsumerState<CurrentOutboundCard>
     final suspended = isStart && ref.watch(suspendProvider);
     final rootAccess =
         mitmFeature && (ref.watch(rootAccessProvider).value ?? false);
+    final target = ref.watch(dashboardOutboundTargetProvider);
     final entry = ref.watch(
-      outboundIpProbeProvider.select((state) => state.entryOf(routedOutbound)),
+      outboundIpProbeProvider.select((state) => state.entryOf(target)),
     );
     final ipInfo = entry.value;
     final phase = shownPhase(entry);
@@ -96,6 +104,88 @@ class _CurrentOutboundCardState extends ConsumerState<CurrentOutboundCard>
         : isStart
         ? (appLocalizations.running, DashboardChipTone.ok)
         : (appLocalizations.notRunning, DashboardChipTone.idle);
+    final allExits = appLocalizations.allOutboundIps;
+    void openExits() => showOutboundIpsSheet(context);
+    final header = LayoutBuilder(
+      builder: (context, constraints) => DashboardCardHeader(
+        glyph: AppGlyphs.status,
+        title: appLocalizations.status,
+        leading: [
+          DashboardChip(label: chipLabel, tone: chipTone, dot: isStart),
+        ],
+        trailing: [
+          if (constraints.maxWidth >=
+              _labeledHeaderWidth * DashboardDensityScope.scaleOf(context))
+            Tooltip(
+              message: allExits,
+              child: TextButton(
+                onPressed: openExits,
+                style: const ButtonStyle(
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                ),
+                child: Text(
+                  allExits,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyle.caption1.of(context, emphasized: true),
+                ),
+              ),
+            )
+          else
+            IconButton(
+              onPressed: openExits,
+              tooltip: allExits,
+              icon: GlyphIcon(AppGlyphs.sidebar(1), size: 16),
+            ),
+        ],
+      ),
+    );
+    final body = Row(
+      spacing: metrics.gap,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: metrics.ipTop),
+              _ExitRow(
+                info: ipInfo,
+                failed: failed,
+                loading: loading,
+                checking: phase == ProbePhase.probing || qualityLoading,
+                onRefresh: () => _refresh(ipInfo?.ip),
+                quality: quality,
+                active: isStart,
+                main: target == mainOutbound,
+                metrics: metrics,
+                large: !density.isDesktop,
+              ),
+              if (density.isDesktop)
+                const Spacer()
+              else
+                const SizedBox(height: 16),
+              _Cells(
+                quality: quality,
+                loading: loading,
+                active: isStart && !suspended,
+                gap: metrics.cellGap,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: metrics.buttonSlot,
+          child: Center(
+            child: _StartToggle(
+              size: metrics.buttonSize,
+              enabled: hasProfile,
+              running: isStart,
+              suspended: suspended,
+            ),
+          ),
+        ),
+      ],
+    );
     return TweenAnimationBuilder<double>(
       tween: Tween(end: rootAccess ? 1 : 0),
       duration: context.motionDuration(commonDuration),
@@ -156,60 +246,10 @@ class _CurrentOutboundCardState extends ConsumerState<CurrentOutboundCard>
           ),
           Padding(
             padding: metrics.padding,
-            child: Row(
-              spacing: metrics.gap,
+            child: Column(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      DashboardCardHeader(
-                        glyph: AppGlyphs.status,
-                        title: appLocalizations.status,
-                        leading: [
-                          DashboardChip(
-                            label: chipLabel,
-                            tone: chipTone,
-                            dot: isStart,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: metrics.ipTop),
-                      _ExitRow(
-                        info: ipInfo,
-                        failed: failed,
-                        loading: loading,
-                        checking: phase == ProbePhase.probing || qualityLoading,
-                        onRefresh: () => _refresh(ipInfo?.ip),
-                        quality: quality,
-                        active: isStart,
-                        metrics: metrics,
-                        large: !density.isDesktop,
-                      ),
-                      if (density.isDesktop)
-                        const Spacer()
-                      else
-                        const SizedBox(height: 16),
-                      _Cells(
-                        quality: quality,
-                        loading: loading,
-                        active: isStart && !suspended,
-                        gap: metrics.cellGap,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: metrics.buttonSlot,
-                  child: Center(
-                    child: _StartToggle(
-                      size: metrics.buttonSize,
-                      enabled: hasProfile,
-                      running: isStart,
-                      suspended: suspended,
-                    ),
-                  ),
-                ),
+                header,
+                if (density.isDesktop) Expanded(child: body) else body,
               ],
             ),
           ),
@@ -298,6 +338,7 @@ class _ExitRow extends StatelessWidget {
     required this.onRefresh,
     required this.quality,
     required this.active,
+    required this.main,
     required this.metrics,
     required this.large,
   });
@@ -309,6 +350,7 @@ class _ExitRow extends StatelessWidget {
   final VoidCallback onRefresh;
   final IpQuality? quality;
   final bool active;
+  final bool main;
   final _OutboundMetrics metrics;
   final bool large;
 
@@ -381,7 +423,12 @@ class _ExitRow extends StatelessWidget {
                   ),
                 )
               else
-                _IpChips(quality: quality, loading: loading, large: large),
+                _IpChips(
+                  quality: quality,
+                  loading: loading,
+                  large: large,
+                  main: main,
+                ),
             ],
           ),
         ),
@@ -414,11 +461,13 @@ class _IpChips extends StatelessWidget {
     required this.quality,
     required this.loading,
     required this.large,
+    required this.main,
   });
 
   final IpQuality? quality;
   final bool loading;
   final bool large;
+  final bool main;
 
   @override
   Widget build(BuildContext context) {
@@ -432,31 +481,34 @@ class _IpChips extends StatelessWidget {
         child: Wrap(
           spacing: 6,
           runSpacing: height,
-          children: switch (quality) {
-            final quality? => [
-              DashboardChip(label: quality.type.label(context), large: large),
-              DashboardChip(
-                label:
-                    '${context.appLocalizations.ipQualityShort} ${quality.level.label(context)}',
-                tone: switch (quality.level) {
-                  IpQualityLevel.good => DashboardChipTone.ok,
-                  IpQualityLevel.normal => DashboardChipTone.idle,
-                  IpQualityLevel.risky => DashboardChipTone.warn,
-                },
-                large: large,
-              ),
-            ],
-            null when loading => [
-              for (final width in _chipSkeletonWidths)
-                SkeletonPill(width: width, height: height),
-            ],
-            null => [
-              DashboardChip(
-                label: context.appLocalizations.ipTypeUnknown,
-                large: large,
-              ),
-            ],
-          },
+          children: [
+            if (main) DashboardChip(label: mainOutbound, large: large),
+            ...switch (quality) {
+              final quality? => [
+                DashboardChip(label: quality.type.label(context), large: large),
+                DashboardChip(
+                  label:
+                      '${context.appLocalizations.ipQualityShort} ${quality.level.label(context)}',
+                  tone: switch (quality.level) {
+                    IpQualityLevel.good => DashboardChipTone.ok,
+                    IpQualityLevel.normal => DashboardChipTone.idle,
+                    IpQualityLevel.risky => DashboardChipTone.warn,
+                  },
+                  large: large,
+                ),
+              ],
+              null when loading => [
+                for (final width in _chipSkeletonWidths)
+                  SkeletonPill(width: width, height: height),
+              ],
+              null => [
+                DashboardChip(
+                  label: context.appLocalizations.ipTypeUnknown,
+                  large: large,
+                ),
+              ],
+            },
+          ],
         ),
       ),
     );
@@ -570,13 +622,13 @@ class _CountryBadgeState extends State<_CountryBadge>
                       color: foreground,
                     )
                   : Text(
-                      code.toUpperCase(),
+                      code.countryFlagEmoji,
                       maxLines: 1,
-                      style: AppTextStyle.footnote
+                      style: AppTextStyle.title3
                           .of(context, emphasized: true)
                           .copyWith(
                             color: foreground,
-                            letterSpacing: 0.04 * AppTextStyle.footnote.size,
+                            fontFamily: FontFamily.twEmoji.value,
                           ),
                     ),
             ),

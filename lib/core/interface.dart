@@ -311,6 +311,13 @@ abstract class CoreHandlerInterface {
     return _query(CoreMethod.connectionCount, (data) => (data as num).toInt());
   }
 
+  Future<List<List<String>>> getActiveOutboundPaths() {
+    return _query(
+      CoreMethod.connectionActivePaths,
+      (data) => [for (final path in data as List) _strings(path as List)],
+    );
+  }
+
   Future<void> closeConnection(String id) {
     return _command(CoreMethod.connectionClose, arguments: {'id': id});
   }

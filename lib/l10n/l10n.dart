@@ -7564,6 +7564,36 @@ class AppLocalizations {
     return Intl.message('Exit', name: 'outboundExit', desc: '', args: []);
   }
 
+  /// `All exits`
+  String get allOutboundIps {
+    return Intl.message(
+      'All exits',
+      name: 'allOutboundIps',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Active exits`
+  String get activeOutboundIps {
+    return Intl.message(
+      'Active exits',
+      name: 'activeOutboundIps',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No active exits`
+  String get noActiveOutboundIps {
+    return Intl.message(
+      'No active exits',
+      name: 'noActiveOutboundIps',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Duration`
   String get duration {
     return Intl.message('Duration', name: 'duration', desc: '', args: []);

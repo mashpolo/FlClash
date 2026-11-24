@@ -312,6 +312,9 @@ class MessageLookup extends MessageLookupByLibrary {
       "Actualizar perfiles",
     ),
     "actionView": MessageLookupByLibrary.simpleMessage("Mostrar/Ocultar"),
+    "activeOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "Salidas activas",
+    ),
     "add": MessageLookupByLibrary.simpleMessage("Añadir"),
     "addCustomProxy": MessageLookupByLibrary.simpleMessage("Añadir proxy"),
     "addFilters": MessageLookupByLibrary.simpleMessage("Añadir filtros"),
@@ -357,6 +360,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "Este perfil está cifrado con age y necesita una clave secreta de age para descifrarse",
     ),
     "agree": MessageLookupByLibrary.simpleMessage("Aceptar"),
+    "allOutboundIps": MessageLookupByLibrary.simpleMessage("Todas las salidas"),
     "allReferencedProxies": MessageLookupByLibrary.simpleMessage(
       "Todos los proxies referenciados",
     ),
@@ -1550,6 +1554,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "networkType": MessageLookupByLibrary.simpleMessage("Tipo de red"),
     "nextMatch": MessageLookupByLibrary.simpleMessage("Coincidencia siguiente"),
     "no": MessageLookupByLibrary.simpleMessage("No"),
+    "noActiveOutboundIps": MessageLookupByLibrary.simpleMessage(
+      "No hay salidas activas",
+    ),
     "noData": MessageLookupByLibrary.simpleMessage("Sin datos"),
     "noInfo": MessageLookupByLibrary.simpleMessage("Sin información"),
     "noLongerRemind": MessageLookupByLibrary.simpleMessage(
